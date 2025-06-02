@@ -1,7 +1,7 @@
 use std::ops::(Add, Mul, Sub)
 
 /// A generic N-dimensional vector.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct VecN<T, const N: usize> {
     pub data[T; N],
 }
