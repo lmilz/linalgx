@@ -29,7 +29,15 @@ impl<T: Copy, const N: usize> VecN<T, N> {
         R: Copy
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i], other.data[i])))
-    } 
+    }
+
+    /// Reduce the vector to a single value using a folding function
+    pub fn fold<B, F>(&self, init: B, f: F) -> B 
+    where 
+        F: Fn(B, T) -> B
+    {
+        self.data.iter().copied().fold(init, f)
+    }
 }
 
 /// Unit Tests
@@ -50,5 +58,12 @@ mod tests {
         let b = VecN::new([4, 5, 6]);
         let result = a.zip_with(b, |x,y| x + y);
         assert_eq!(result, VecN::new([5, 7, 9]));
+    }
+
+    #[test]
+    fn test_fold() {
+        let v = VecN::new([1, 2, 3]);
+        let sum = v.fold(0, |acc, x| acc+x);
+        assert_eq!(sum, 6);
     }
 }
