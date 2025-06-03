@@ -11,4 +11,9 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     pub fn new (data: [T; N]) -> Self {
         Self { data }
     }
+
+    /// Applies a function to each element of the vector (map function in functional programming)
+    pub fn map<U, F: Fn(T) -> U>(&self, f: F) -> VecN<U, N> {
+        VecN::new(std::array::from_fn(|i| f(self.data[i])))
+    }
 }
