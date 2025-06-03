@@ -19,7 +19,17 @@ impl<T: Copy, const N: usize> VecN<T, N> {
         U: Copy
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i])))
-    }    
+    }   
+
+    /// Combines two vectors element-wise using a given binary function (zipwith pattern in functional programming)
+    pub fn zip_with<U, R, F>(&self, other: VecN<U, N>, f: F) -> VecN<R, N> 
+    where
+        F: Fn(T, U) -> R,
+        U: Copy, 
+        R: Copy
+    {
+        VecN::new(std::array::from_fn(|i| f(self.data[i], other.data[i])))
+    } 
 }
 
 /// Unit Tests
@@ -32,5 +42,13 @@ mod tests {
         let v = VecN::new([1,2,3]);
         let doubled = v.map(|x| 2*x);
         assert_eq!(doubled, VecN::new([2,4,6]));
+    }
+
+    #[test]
+    fn test_zip_with() {
+        let a = VecN::new([1, 2, 3]);
+        let b = VecN::new([4, 5, 6]);
+        let result = a.zip_with(b, |x,y| x + y);
+        assert_eq!(result, VecN::new([5, 7, 9]));
     }
 }
