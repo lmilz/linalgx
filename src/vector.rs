@@ -1,4 +1,5 @@
 use std::ops::{Add, Mul, Sub};
+use num_traits::{Float, Zero};
 
 /// A generic N-dimensional vector.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -16,7 +17,7 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     pub fn map<U, F>(&self, f: F) -> VecN<U, N> 
     where
         F: Fn(T) -> U,
-        U: Copy
+        U: Copy,
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i])))
     }   
@@ -26,7 +27,7 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     where
         F: Fn(T, U) -> R,
         U: Copy, 
-        R: Copy
+        R: Copy,
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i], other.data[i])))
     }
@@ -34,9 +35,17 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     /// Reduce the vector to a single value using a folding function
     pub fn fold<B, F>(&self, init: B, f: F) -> B 
     where 
-        F: Fn(B, T) -> B
+        F: Fn(B, T) -> B,
     {
         self.data.iter().copied().fold(init, f)
+    }
+
+    /// Dot products between two vectors
+    pub fn dot(&self, other: &Self) -> T 
+    where
+        T: Add<Output = T> + Mul<Output = T> + Zero,
+    {
+
     }
 }
 
