@@ -57,6 +57,42 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     }
 }
 
+/// Element-wise vector addition: v1 + v2
+impl<T, const N: usize> Add for VecN<T, N>
+where
+    T: Add<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.zip_with(rhs, |a, b| a + b)
+    }
+}
+
+/// Element-wise vector subtraction: v1 - v2
+impl<T, const N: usize> Sub for VecN<T, N>
+where
+    T: Sub<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.zip_with(rhs, |a, b| a - b)
+    }
+}
+
+/// Scalar multiplication: v * scalar
+impl<T, const N: usize> Mul<T> for VecN<T, N>
+where
+    T: Mul<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        self.map(|x| x * rhs)
+    }
+}
+
 /// Unit Tests
 #[cfg(test)]
 mod tests {
@@ -96,4 +132,24 @@ mod tests {
         let a = VecN::new([3.0, 4.0]);
         assert_eq!(a.length(), 5.0);
     }
+
+    #[test]
+    fn test_add() {
+        let a = VecN::new([1, 2, 3]);
+        let b = VecN::new([4, 5, 6]);
+        assert_eq!(a + b, VecN::new([5, 7, 9]));
+    }
+
+    #[test]
+    fn test_sub() {
+        let a = VecN::new([1, 2, 3]);
+        let b = VecN::new([4, 5, 6]);
+        assert_eq!(a - b, VecN::new([-3, -3, -3]));
+    }    
+
+    #[test]
+    fn test_mul() {
+        let a = VecN::new([1, 2, 3]);
+        assert_eq!(a * 2, VecN::new([2, 4, 6]));
+    }    
 }
