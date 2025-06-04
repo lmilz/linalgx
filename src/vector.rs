@@ -1,5 +1,5 @@
-use std::ops::{Add, Mul, Sub};
 use num_traits::{Float, Zero};
+use std::ops::{Add, Mul, Sub};
 
 /// A generic N-dimensional vector.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -14,38 +14,39 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     }
 
     /// Applies a function to each element of the vector (map function in functional programming)
-    pub fn map<U, F>(&self, f: F) -> VecN<U, N> 
+    pub fn map<U, F>(&self, f: F) -> VecN<U, N>
     where
         F: Fn(T) -> U,
         U: Copy,
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i])))
-    }   
+    }
 
     /// Combines two vectors element-wise using a given binary function (zipwith pattern in functional programming)
-    pub fn zip_with<U, R, F>(&self, other: VecN<U, N>, f: F) -> VecN<R, N> 
+    pub fn zip_with<U, R, F>(&self, other: VecN<U, N>, f: F) -> VecN<R, N>
     where
         F: Fn(T, U) -> R,
-        U: Copy, 
+        U: Copy,
         R: Copy,
     {
         VecN::new(std::array::from_fn(|i| f(self.data[i], other.data[i])))
     }
 
     /// Reduce the vector to a single value using a folding function
-    pub fn fold<B, F>(&self, init: B, f: F) -> B 
-    where 
+    pub fn fold<B, F>(&self, init: B, f: F) -> B
+    where
         F: Fn(B, T) -> B,
     {
         self.data.iter().copied().fold(init, f)
     }
 
     /// Dot products between two vectors
-    pub fn dot(&self, other: &Self) -> T 
+    pub fn dot(&self, other: &Self) -> T
     where
         T: Add<Output = T> + Mul<Output = T> + Zero,
     {
-        self.zip_with(*other, |a,b| a * b).fold(T::zero(), |acc, x| acc + x)
+        self.zip_with(*other, |a, b| a * b)
+            .fold(T::zero(), |acc, x| acc + x)
     }
 
     /// Computes the length (norm) of the vector
@@ -53,7 +54,7 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     where
         T: Float,
     {
-        self.map(|x| x*x).fold(T::zero(), |acc, x| acc + x).sqrt()
+        self.map(|x| x * x).fold(T::zero(), |acc, x| acc + x).sqrt()
     }
 }
 
@@ -100,23 +101,23 @@ mod tests {
 
     #[test]
     fn test_map() {
-        let v = VecN::new([1,2,3]);
-        let doubled = v.map(|x| 2*x);
-        assert_eq!(doubled, VecN::new([2,4,6]));
+        let v = VecN::new([1, 2, 3]);
+        let doubled = v.map(|x| 2 * x);
+        assert_eq!(doubled, VecN::new([2, 4, 6]));
     }
 
     #[test]
     fn test_zip_with() {
         let a = VecN::new([1, 2, 3]);
         let b = VecN::new([4, 5, 6]);
-        let result = a.zip_with(b, |x,y| x + y);
+        let result = a.zip_with(b, |x, y| x + y);
         assert_eq!(result, VecN::new([5, 7, 9]));
     }
 
     #[test]
     fn test_fold() {
         let v = VecN::new([1, 2, 3]);
-        let sum = v.fold(0, |acc, x| acc+x);
+        let sum = v.fold(0, |acc, x| acc + x);
         assert_eq!(sum, 6);
     }
 
@@ -145,11 +146,11 @@ mod tests {
         let a = VecN::new([1, 2, 3]);
         let b = VecN::new([4, 5, 6]);
         assert_eq!(a - b, VecN::new([-3, -3, -3]));
-    }    
+    }
 
     #[test]
     fn test_mul() {
         let a = VecN::new([1, 2, 3]);
         assert_eq!(a * 2, VecN::new([2, 4, 6]));
-    }    
+    }
 }
