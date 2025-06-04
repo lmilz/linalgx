@@ -94,6 +94,20 @@ where
     }
 }
 
+/// 3-dimensional vectors for cross product
+pub type Vec3<T> = VecN<T, 3>;
+
+impl<T> Vec3<T>
+where
+    T: Copy + Sub<Output = T> + Mul<Output = T> + Add<Output = T> + Zero,
+{
+    pub fn cross(&self, other: &Self) -> Self {
+        let [x1, y1, z1] = self.data;
+        let [x2, y2, z2] = other.data;
+        Vec3::new([y1*z2 - z1*y2, z1*x2 - x1*z2, x1*y2 - y1*x2])
+    }
+}
+
 /// Unit Tests
 #[cfg(test)]
 mod tests {
@@ -152,5 +166,13 @@ mod tests {
     fn test_mul() {
         let a = VecN::new([1, 2, 3]);
         assert_eq!(a * 2, VecN::new([2, 4, 6]));
+    }
+
+    #[test]
+    fn test_cross() {
+        let a = Vec3::new([1, 0, 0]);
+        let b = Vec3::new([0, 1, 0]);
+        let c = a.cross(&b);
+        assert_eq!(c, Vec3::new([0, 0, 1]));
     }
 }
