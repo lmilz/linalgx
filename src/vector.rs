@@ -45,7 +45,15 @@ impl<T: Copy, const N: usize> VecN<T, N> {
     where
         T: Add<Output = T> + Mul<Output = T> + Zero,
     {
+        self.zip_with(*other, |a,b| a * b).fold(T::zero(), |acc, x| acc + x)
+    }
 
+    /// Computes the length (norm) of the vector
+    pub fn length(&self) -> T
+    where
+        T: Float,
+    {
+        self.map(|x| x*x).fold(T::zero(), |acc, x| acc + x).sqrt()
     }
 }
 
@@ -74,5 +82,18 @@ mod tests {
         let v = VecN::new([1, 2, 3]);
         let sum = v.fold(0, |acc, x| acc+x);
         assert_eq!(sum, 6);
+    }
+
+    #[test]
+    fn test_dot() {
+        let a = VecN::new([1.0, 2.0, 3.0]);
+        let b = VecN::new([4.0, 5.0, 6.0]);
+        assert_eq!(a.dot(&b), 32.0);
+    }
+
+    #[test]
+    fn test_length() {
+        let a = VecN::new([3.0, 4.0]);
+        assert_eq!(a.length(), 5.0);
     }
 }
