@@ -24,6 +24,7 @@ enum Object {
 }
 
 impl Object {
+    /// Returns the intersection distance and color if the ray hits the Object
     fn intersect(&self, ray: &Ray) -> Option<(f64, Color)> {
         match self {
             Object::Sphere {
@@ -31,18 +32,22 @@ impl Object {
                 radius,
                 color,
             } => {
-                let oc = ray.origin - *center;
-                let a = ray.direction.dot(&ray.direction);
-                let b = oc.dot(&ray.direction) * 2.0;
-                let c = oc.dot(&oc) - radius * radius;
-                let disc = b * b - 4.0 * a * c;
+                let vector_to_center = ray.origin - *center;
 
-                (disc >= 0.0)
+                // Solve the quadratic equation for ray-sphere intersection
+                let a = ray.direction.dot(&ray.direction);
+                let b = 2.0 * vector_to_center.dot(&ray.direction);
+                let c = vector_to_center.dot(&vector_to_center) - radius * radius;
+
+                let discriminant = b * b - 4.0 * a * c;
+
+                // If discriminant is non-negative, compute intersection distance
+                (discriminant >= 0.0)
                     .then(|| {
-                        let t = (-b - disc.sqrt()) / (2.0 * a);
-                        (t, *color)
+                        let distance = (-b - discriminant.sqrt()) / (2.0 * a);
+                        (distance, *color)
                     })
-                    .filter(|(t, _)| *t > 0.0)
+                    .filter(|(distance, _)| *distance > 0.0)
             }
 
             Object::Square {
@@ -50,52 +55,70 @@ impl Object {
                 size,
                 color,
             } => {
-                let z_dir = ray.direction.data[2];
-                if z_dir.abs() < 1e-6 {
+                let ray_z = ray.direction.data[2];
+
+                // Avoid intersection if ray is parallel to square's plane
+                if ray_z.abs() < 1e-6 {
                     return None;
                 }
 
-                let t = (center.data[2] - ray.origin.data[2]) / z_dir;
-                let hit = ray.origin + ray.direction * t;
-                let half = size / 2.0;
+                // Calculate intersection with square's plane
+                let t = (center.data[2] - ray.origin.data[2]) / ray_z;
+                let hit_position = ray.origin + ray.direction * t;
+                let half_size = size / 2.0;
 
+                // Check if intersection point is within square bounds
                 (t > 0.0
-                    && (center.data[0] - half..=center.data[0] + half).contains(&hit.data[0])
-                    && (center.data[1] - half..=center.data[1] + half).contains(&hit.data[1]))
+                    && (center.data[0] - half_size..=center.data[0] + half_size)
+                        .contains(&hit_position.data[0])
+                    && (center.data[1] - half_size..=center.data[1] + half_size)
+                        .contains(&hit_position.data[1]))
                 .then_some((t, *color))
             }
         }
     }
 }
 
-fn cast_ray(ray: &Ray, scene: &[Object], background: Color) -> Color {
-    scene
+/// Casts a ray into the scene and returns the color of the nearest hit object
+fn cast_ray(ray: &Ray, scene_objects: &[Object], background_color: Color) -> Color {
+    scene_objects
         .iter()
         .filter_map(|object| object.intersect(ray))
-        .min_by(|(t1, _), (t2, _)| t1.partial_cmp(t2).unwrap())
+        .min_by(|(distance1, _), (distance2, _)| distance1.partial_cmp(distance2).unwrap())
         .map(|(_, color)| color)
-        .unwrap_or(background)
+        .unwrap_or(background_color)
 }
 
-fn render(width: u32, height: u32, scene: &[Object]) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
-    let camera = Vec3::new([0.0, 0.0, -1.0]);
-    let background = (30, 30, 40);
+/// Renders the scene to an image buffer
+fn render(
+    image_width: u32,
+    image_height: u32,
+    scene_objects: &[Object],
+) -> ImageBuffer<Rgb<u8>, Vec<u8>> {
+    let camera_origin = Vec3::new([0.0, 0.0, -1.0]);
+    let background_color = (30, 30, 40);
 
-    ImageBuffer::from_fn(width, height, |x, y| {
-        let u = (x as f64 / width as f64) * 2.0 - 1.0;
-        let v = 1.0 - (y as f64 / height as f64) * 2.0;
-        let direction = Vec3::new([u, v, 1.0]);
+    ImageBuffer::from_fn(image_width, image_height, |pixel_x, pixel_y| {
+        // Convert pixel coordinate to viewport space (-1.0 to 1.0)
+        let normalized_x = (pixel_x as f64 / image_width as f64) * 2.0 - 1.0;
+        let normalized_y = 1.0 - (pixel_y as f64 / image_height as f64) * 2.0;
+
+        // Generate ray direction through the viewport pixel
+        let ray_direction = Vec3::new([normalized_x, normalized_y, 1.0]);
         let ray = Ray {
-            origin: camera,
-            direction,
+            origin: camera_origin,
+            direction: ray_direction,
         };
-        let (r, g, b) = cast_ray(&ray, scene, background);
-        Rgb([r, g, b])
+
+        // Determine color seen along the ray
+        let (red, green, blue) = cast_ray(&ray, scene_objects, background_color);
+        Rgb([red, green, blue])
     })
 }
 
+/// Main entry point of the program
 fn main() {
-    let scene = vec![
+    let scene_objects = vec![
         Object::Sphere {
             center: Vec3::new([0.3, 0.0, 2.5]),
             radius: 0.4,
@@ -108,6 +131,6 @@ fn main() {
         },
     ];
 
-    let image = render(400, 400, &scene);
+    let image = render(400, 400, &scene_objects);
     image.save("output.png").expect("Failed to save image");
 }
