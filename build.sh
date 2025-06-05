@@ -12,15 +12,25 @@ NC='\033[0m' # No color
 
 # Pretty banner
 echo -e "${BLUE}==============================="
-echo -e "🚀 Rust Library Build & Test 🔧"
+echo -e "🚀 Rust Format, Lint, Build & Test"
 echo -e "===============================${NC}"
 
-# Step 1: Build the library
+# Format check
+echo -e "${YELLOW}🧹 Checking code format with rustfmt...${NC}"
+cargo fmt --all -- --check
+echo -e "${GREEN}✅ Code format is clean.${NC}"
+
+# Clippy lint check
+echo -e "${YELLOW}🔎 Running Clippy linter...${NC}"
+cargo clippy --all --all-targets -- -D warnings
+echo -e "${GREEN}✅ Clippy passed with no warnings.${NC}"
+
+# Build the library
 echo -e "${YELLOW}🔨 Building the Rust library...${NC}"
 cargo build --lib
 echo -e "${GREEN}✅ Build successful!${NC}"
 
-# Step 2: Run the library tests
+# Run the library tests
 echo -e "${YELLOW}🧪 Running library tests...${NC}"
 cargo test --lib
 echo -e "${GREEN}✅ All tests passed!${NC}"
