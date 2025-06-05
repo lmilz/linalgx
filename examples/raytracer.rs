@@ -118,6 +118,8 @@ fn render(
 
 /// Main entry point of the program
 fn main() {
+    let image_width = 400;
+    let image_height = 400;
     let scene_objects = vec![
         Object::Sphere {
             center: Vec3::new([0.3, 0.0, 2.5]),
@@ -131,6 +133,6 @@ fn main() {
         },
     ];
 
-    let image = render(400, 400, &scene_objects);
+    let image = render(image_width, image_height, &scene_objects);
     image.save("output.png").expect("Failed to save image");
 }
