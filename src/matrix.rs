@@ -1,7 +1,5 @@
 use std::ops::{Add, Mul, Sub};
 
-// TODO: Abfangen wenn Dimensionen nicht passen
-
 /// A generic MxN-dimensional matrix.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MatMN<T, const M: usize, const N: usize> {
