@@ -1,3 +1,7 @@
+use std::ops::{Add, Mul, Sub};
+
+// TODO: Abfangen wenn Dimensionen nicht passen
+
 /// A generic MxN-dimensional matrix.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MatMN<T, const M: usize, const N: usize> {
@@ -39,6 +43,42 @@ impl<T: Copy, const M: usize, const N: usize> MatMN<T, M, N> {
         F: Fn(B, T) -> B,
     {
         self.data.iter().flatten().copied().fold(init, f)
+    }
+}
+
+/// Element-wise matrix addition: m1 + m2
+impl<T, const M: usize, const N: usize> Add for MatMN<T, M, N>
+where
+    T: Add<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        self.zip_with(other, |a, b| a + b)
+    }
+}
+
+/// Element-wise matrix subtraction: m1 - m2
+impl<T, const M: usize, const N: usize> Sub for MatMN<T, M, N>
+where
+    T: Sub<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        self.zip_with(other, |a, b| a - b)
+    }
+}
+
+/// Scalar multiplication: m * scalar
+impl<T, const M: usize, const N: usize> Mul<T> for MatMN<T, M, N>
+where
+    T: Mul<Output = T> + Copy,
+{
+    type Output = Self;
+
+    fn mul(self, scalar: T) -> Self {
+        self.map(|x| x * scalar)
     }
 }
 
