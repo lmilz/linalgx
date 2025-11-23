@@ -129,4 +129,11 @@ mod tests {
         let result = mat * 2;
         assert_eq!(result, MatMN::new([[2, 4], [6, 8]]));
     }
+
+    #[test]
+    fn test_matmn_mul() {
+        let mat1 = MatMN::new([[1, 2], [3, 4]]);
+        let mat2 = MatMN::new([[5, 6], [7, 8]]);
+        let result = mat1 * mat2;
+    }
 }
