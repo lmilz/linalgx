@@ -43,6 +43,18 @@ impl<T: Copy, const M: usize, const N: usize> MatMN<T, M, N> {
     {
         self.data.iter().flatten().copied().fold(init, f)
     }
+
+    /// Matrix multiplication: m1 (M×N) * m2 (N×K) -> (M×K)
+    pub fn mat_mul<const K: usize>(&self, other: MatMN<T, N, K>) -> MatMN<T, M, K>
+    where
+        T: Copy + Add<Output = T> + Mul<Output = T> + Zero,
+    {
+        MatMN::new(std::array::from_fn(|i| {
+            std::array::from_fn(|j| {
+                (0..N).fold(T::zero(), |acc, k| acc + self.data[i][k] * other.data[k][j])
+            })
+        }))
+    }
 }
 
 /// Element-wise matrix addition: m1 + m2
@@ -81,17 +93,19 @@ where
     }
 }
 
-/// Matrix multiplication m1 * m2
-impl<T, const M: usize, const N: usize> Mul for MatMN<T, M, N>
+/// Matrix multiplication: m1 (M×N) * m2 (N×K) -> (M×K)
+impl<T, const M: usize, const N: usize, const K: usize> Mul<MatMN<T, N, K>> for MatMN<T, M, N>
 where
     T: Copy + Add<Output = T> + Mul<Output = T> + Zero,
 {
-    type Output = Self;
+    type Output = MatMN<T, M, K>;
 
-    fn mul(self, other: Self) -> Self {}
+    fn mul(self, other: MatMN<T, N, K>) -> MatMN<T, M, K> {
+        self.mat_mul(other)
+    }
 }
 
-/// Unit Test
+/// Unit Tests
 #[cfg(test)]
 mod tests {
     use super::*;
