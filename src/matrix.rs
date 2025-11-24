@@ -1,3 +1,4 @@
+use num_traits::Zero;
 use std::ops::{Add, Mul, Sub};
 
 /// A generic MxN-dimensional matrix.
@@ -80,6 +81,17 @@ where
     }
 }
 
+/// Matrix multiplication m1 * m2
+impl<T, const M: usize, const N: usize> Mul for MatMN<T, M, N>
+where
+    T: Copy + Add<Output = T> + Mul<Output = T> + Zero,
+{
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+    }
+}
+
 /// Unit Test
 #[cfg(test)]
 mod tests {
@@ -135,5 +147,6 @@ mod tests {
         let mat1 = MatMN::new([[1, 2], [3, 4]]);
         let mat2 = MatMN::new([[5, 6], [7, 8]]);
         let result = mat1 * mat2;
+        assert_eq!(result, MatMN::new([[19, 22], [43, 50]]));
     }
 }
