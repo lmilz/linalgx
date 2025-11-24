@@ -88,8 +88,7 @@ where
 {
     type Output = Self;
 
-    fn mul(self, other: Self) -> Self {
-    }
+    fn mul(self, other: Self) -> Self {}
 }
 
 /// Unit Test
