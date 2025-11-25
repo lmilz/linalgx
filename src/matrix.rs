@@ -55,6 +55,13 @@ impl<T: Copy, const M: usize, const N: usize> MatMN<T, M, N> {
             })
         }))
     }
+
+    /// Transpose matrix
+    pub fn transpose(&self) -> MatMN<T, M, N> {
+        MatMN::new(std::array::from_fn(|i| {
+            std::array::from_fn(|j| self.data[j][i])
+        }))
+    }
 }
 
 /// Element-wise matrix addition: m1 + m2
@@ -161,5 +168,12 @@ mod tests {
         let mat2 = MatMN::new([[5, 6], [7, 8]]);
         let result = mat1 * mat2;
         assert_eq!(result, MatMN::new([[19, 22], [43, 50]]));
+    }
+
+    #[test]
+    fn test_matmn_transpose() {
+        let mat = MatMN::new([[1, 2], [3, 4]]);
+        let result = mat.transpose();
+        assert_eq!(result, MatMN::new([[1, 3], [2, 4]]));
     }
 }
