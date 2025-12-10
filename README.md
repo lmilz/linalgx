@@ -1,6 +1,6 @@
 # linalgx
 
-**linalgx** is a small learning project to explore *functional programming* and *generic design* in **Rust** by implementing a lightweight linear algebra library.  
+linalgx is a small learning project to explore *functional programming* and *generic design* in **Rust** by implementing a lightweight linear algebra library.  
 
 ## 🎯 Goals
 
