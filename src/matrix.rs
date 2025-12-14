@@ -57,7 +57,7 @@ impl<T: Copy, const M: usize, const N: usize> MatMN<T, M, N> {
     }
 
     /// Transpose matrix
-    pub fn transpose(&self) -> MatMN<T, M, N> {
+    pub fn transpose(&self) -> MatMN<T, N, M> {
         MatMN::new(std::array::from_fn(|i| {
             std::array::from_fn(|j| self.data[j][i])
         }))
